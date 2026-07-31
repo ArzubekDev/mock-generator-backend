@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mock-generator-db
+    environment:
+      POSTGRES_USER: mockuser
+      POSTGRES_PASSWORD: mockpass
+      POSTGRES_DB: mockdb
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
