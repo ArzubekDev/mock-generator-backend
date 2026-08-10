@@ -1,8 +1,12 @@
 {
   "name": "mock-generator-backend",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Бэкенд Mock Generator: создание и отдача mock API по JSON Schema",
+  "author": {
+    "name": "Arzubek Dzhuraev",
+    "email": "arzubekmain@gmail.com",
+    "url": "https://github.com/ArzubekDev"
+  },
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

@@ -42,9 +42,8 @@ export class AuthController {
     };
   }
 
-  //   // ⬇️ ВРЕМЕННЫЙ эндпоинт для теста
-  //   @Post('dev-login')
-  //   async devLogin() {
-  //     return this.authService.devLogin();
-  //   }
+  @Post('dev-login')
+  devLogin() {
+    return this.authService.devLogin();
+  }
 }

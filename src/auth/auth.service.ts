@@ -174,24 +174,23 @@ export class AuthService {
     };
   }
 
-  //   // ==================== DEV LOGIN (временно) ====================
-  //   async devLogin() {
-  //     let user = await this.userRepo.findOne({
-  //       where: { email: 'dev@test.com' },
-  //     });
+  async devLogin() {
+    let user = await this.userRepo.findOne({
+      where: { email: 'dev@test.com' },
+    });
 
-  //     if (!user) {
-  //       user = this.userRepo.create({
-  //         email: 'dev@test.com',
-  //         name: 'Dev User',
-  //         avatar: undefined,
-  //         provider: 'dev',
-  //         providerId: 'dev-123',
-  //       });
-  //       await this.userRepo.save(user);
-  //     }
+    if (!user) {
+      user = this.userRepo.create({
+        email: 'dev@test.com',
+        name: 'Dev User',
+        avatar: undefined,
+        provider: 'dev',
+        providerId: 'dev-123',
+      });
+      await this.userRepo.save(user);
+    }
 
-  //     const token = this.generateToken(user);
-  //     return { token, user: this.sanitizeUser(user) };
-  //   }
+    const token = this.generateToken(user);
+    return { token, user: this.sanitizeUser(user) };
+  }
 }
