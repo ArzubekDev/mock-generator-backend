@@ -1,12 +1,11 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
-import { User } from '../users/entities/user.entity'; // Импортируйте вашу сущность User
+import { User } from '../users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { GitHubAuthDto } from './dto/github-auth.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
-// Создаем тип для запроса, где user строго типизирован
 interface RequestWithUser extends ExpressRequest {
   user: User;
 }
@@ -28,7 +27,6 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(@Req() req: RequestWithUser) {
-    // Заменили 'user: any' на четкий тип 'RequestWithUser'
     const user = req.user;
 
     return {

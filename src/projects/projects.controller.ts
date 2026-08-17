@@ -14,7 +14,6 @@ import { User } from '../users/entities/user.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 
-// 2. Расширяем тип ExpressRequest
 interface RequestWithUser extends ExpressRequest {
   user: User;
 }

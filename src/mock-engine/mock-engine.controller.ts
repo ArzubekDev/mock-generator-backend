@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { MockEngineService } from './mock-engine.service';
 
-@Controller('api') // Все мок-запросы будут на /api/:endpointKey/:resource
+@Controller('api')
 export class MockEngineController {
   constructor(private readonly mockEngineService: MockEngineService) {}
 

@@ -28,6 +28,9 @@ export class Project {
   @Column({ default: 0 })
   errorRate: number;
 
+  @Column({ default: 20 })
+  defaultLimit: number;
+
   @ManyToOne(() => User, (user) => user.projects)
   @JoinColumn({ name: 'userId' })
   user: User;

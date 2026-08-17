@@ -4,10 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from '../projects/entities/project.entity';
 
-// 1. Создаем интерфейсы для описываемых JSON-схем
 interface PropertySchema {
   type?: string;
   faker?: string;
+  fakerArgs?: unknown[];
   enum?: string[];
   format?: string;
   minimum?: number;
@@ -32,7 +32,6 @@ export class MockEngineService {
     resource: string,
     query: Record<string, unknown>,
   ) {
-    // 1. Находим проект по ключу
     const project = await this.projectRepo.findOne({
       where: { endpointKey },
     });
@@ -41,12 +40,10 @@ export class MockEngineService {
       throw new NotFoundException('Mock API not found');
     }
 
-    // 2. Эмуляция задержки
     if (project.delay > 0) {
       await this.sleep(project.delay);
     }
 
-    // 3. Эмуляция ошибки
     if (project.errorRate > 0) {
       const random = Math.random() * 100;
       if (random < project.errorRate) {
@@ -54,7 +51,6 @@ export class MockEngineService {
       }
     }
 
-    // 4. Получаем схему для ресурса из JSON-проекта
     const schemas = project.schemaJson as Record<string, ResourceSchema>;
     const schema = schemas?.[resource];
 
@@ -62,12 +58,14 @@ export class MockEngineService {
       throw new NotFoundException(`Resource "${resource}" not found in schema`);
     }
 
-    // 5. Определяем количество записей
-    const rawLimit = typeof query.limit === 'string' ? query.limit : '20';
-    const limit = parseInt(rawLimit, 10) || 20;
-    const count = Math.min(limit, 100); // макс 100 за раз
+    const fallbackLimit = project.defaultLimit > 0 ? project.defaultLimit : 20;
+    const rawLimit =
+      typeof query.limit === 'string' ? query.limit : String(fallbackLimit);
+    const parsed = parseInt(rawLimit, 10);
+    const limit =
+      Number.isFinite(parsed) && parsed > 0 ? parsed : fallbackLimit;
+    const count = Math.min(limit, 100);
 
-    // 6. Генерируем данные
     const data: Record<string, unknown>[] = [];
     for (let i = 0; i < count; i++) {
       data.push(this.generateObject(schema));
@@ -96,12 +94,10 @@ export class MockEngineService {
   }
 
   private generateValue(prop: PropertySchema): unknown {
-    // 1. Если явно указан путь faker (например, "internet.email", "person.fullName")
     if (prop.faker) {
-      return this.getFakerValue(prop.faker);
+      return this.getFakerValue(prop.faker, prop.fakerArgs);
     }
 
-    // 2. Если указан format (даже без explicit type: 'string')
     if (prop.format === 'email') {
       return faker.internet.email();
     }
@@ -112,7 +108,6 @@ export class MockEngineService {
       return faker.string.uuid();
     }
 
-    // 3. Обработка по типам
     const type = prop.type;
 
     switch (type) {
@@ -140,7 +135,7 @@ export class MockEngineService {
     }
   }
 
-  private getFakerValue(path: string): string {
+  private getFakerValue(path: string, args: unknown[] = []): unknown {
     const parts = path.split('.');
     let current: unknown = faker;
 
@@ -152,16 +147,15 @@ export class MockEngineService {
       ) {
         current = (current as Record<string, unknown>)[part];
       } else {
-        return `unknown:${path}`;
+        throw new Error(`Unknown faker method: "${path}"`);
       }
     }
 
     if (typeof current === 'function') {
-      const result = (current as () => unknown)();
-      return String(result);
+      return (current as (...a: unknown[]) => unknown)(...args);
     }
 
-    return String(current);
+    return current;
   }
 
   private sleep(ms: number): Promise<void> {
