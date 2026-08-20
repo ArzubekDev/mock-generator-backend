@@ -20,7 +20,7 @@ import { UsersModule } from './users/users.module';
         url: config.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: config.get<string>('DB_SYNC') === 'true',
         ssl:
           config.get<string>('NODE_ENV') === 'production'
             ? { rejectUnauthorized: false }
