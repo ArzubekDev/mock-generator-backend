@@ -3,22 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from '../projects/entities/project.entity';
-
-interface PropertySchema {
-  type?: string;
-  faker?: string;
-  fakerArgs?: unknown[];
-  enum?: string[];
-  format?: string;
-  minimum?: number;
-  maximum?: number;
-  properties?: Record<string, PropertySchema>;
-}
-
-interface ResourceSchema {
-  type?: string;
-  properties?: Record<string, PropertySchema>;
-}
+import { PropertySchema, ResourceSchema } from '../shared/types';
 
 @Injectable()
 export class MockEngineService {
@@ -147,15 +132,29 @@ export class MockEngineService {
       ) {
         current = (current as Record<string, unknown>)[part];
       } else {
-        throw new Error(`Unknown faker method: "${path}"`);
+        console.warn(
+          `Unknown faker method: "${path}", falling back to lorem.word`,
+        );
+        return faker.lorem.word();
       }
     }
 
     if (typeof current === 'function') {
-      return (current as (...a: unknown[]) => unknown)(...args);
+      try {
+        return (current as (...a: unknown[]) => unknown)(...args);
+      } catch (e) {
+        console.warn(
+          `Faker method "${path}" threw an error, falling back to lorem.word`,
+          e,
+        );
+        return faker.lorem.word();
+      }
     }
 
-    return current;
+    console.warn(
+      `Faker path "${path}" is not callable, falling back to lorem.word`,
+    );
+    return faker.lorem.word();
   }
 
   private sleep(ms: number): Promise<void> {

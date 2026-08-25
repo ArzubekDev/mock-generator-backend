@@ -13,6 +13,7 @@ import { Request as ExpressRequest } from 'express';
 import { User } from '../users/entities/user.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
+import { CreateProjectWithAiDto } from './dto/create-project-with-ai.dto';
 
 interface RequestWithUser extends ExpressRequest {
   user: User;
@@ -22,6 +23,14 @@ interface RequestWithUser extends ExpressRequest {
 @UseGuards(AuthGuard('jwt'))
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
+
+  @Post('ai-generate')
+  createWithAi(
+    @Body() dto: CreateProjectWithAiDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.projectsService.createWithAi(dto, req.user.id);
+  }
 
   @Post()
   create(@Req() req: RequestWithUser, @Body() dto: CreateProjectDto) {
